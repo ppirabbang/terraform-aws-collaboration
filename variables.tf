@@ -33,6 +33,12 @@ variable "width" {
 }
 
 variable "placeholder" {
-  default     = "placekitten.com"
+  default     = [ //num_1 = "!!!" 처럼 인덱스 선언 안해도 된다
+    "placekitten.com",
+    "placebear.com",
+    "plagedog.com"
+  ]
+  
   description = "Image-as-a-service URL. Some other fun ones to try are fillmurray.com, placecage.com, placebeard.it, loremflickr.com, baconmockup.com, placeimg.com, placebear.com, placeskull.com, stevensegallery.com, placedog.net"
+  
 }

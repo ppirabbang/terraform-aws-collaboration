@@ -1,12 +1,13 @@
 terraform {
-  // cloud {
-  //   organization = "<MY_ORG_NAME>"         # 생성한 ORG 이름 지정
-  //   hostname     = "app.terraform.io"      # default
+  cloud {
+    organization = "<MY_ORG_NAME>"         # 생성한 ORG 이름 지정
+    hostname     = "app.terraform.io"      # default
 
-  //   workspaces {
-  //     name = "terraform-aws-collaboration" # 없으면 생성됨
-  //   }
-  // }
+    workspaces {
+      name = "terraform-edu-part1-assignment" # 없으면 생성됨
+    }
+  }
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -19,7 +20,7 @@ provider "aws" {
   region = var.region
   default_tags {
     tags = {
-      Project = "<project name>"
+      Project = "workshop"
     }
   }
 }
@@ -37,6 +38,7 @@ resource "aws_vpc" "hashicat" {
 resource "aws_subnet" "hashicat" {
   vpc_id     = aws_vpc.hashicat.id
   cidr_block = var.subnet_prefix
+  map_public_ip_on_launch = true
 
   tags = {
     name = "${var.prefix}-subnet"
@@ -120,7 +122,7 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 
-resource "aws_eip" "hashicat" {
+/*resource "aws_eip" "hashicat" {
   instance = aws_instance.hashicat.id
   domain   = "vpc"
 }
@@ -129,8 +131,9 @@ resource "aws_eip_association" "hashicat" {
   instance_id   = aws_instance.hashicat.id
   allocation_id = aws_eip.hashicat.id
 }
-
+*/
 resource "aws_instance" "hashicat" {
+  count = 3
   ami                         = data.aws_ami.ubuntu.id
   instance_type               = var.instance_type
   key_name                    = aws_key_pair.hashicat.key_name
@@ -138,13 +141,14 @@ resource "aws_instance" "hashicat" {
   subnet_id                   = aws_subnet.hashicat.id
   vpc_security_group_ids      = [aws_security_group.hashicat.id]
 
+  
   tags = {
     Name = "${var.prefix}-hashicat-instance"
   }
 }
 
 resource "null_resource" "configure-cat-app" {
-  depends_on = [aws_eip_association.hashicat]
+  //depends_on = [aws_eip_association.hashicat]
 
   // triggers = {
   //   build_number = timestamp()
